@@ -1,0 +1,33 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import diamonds from "../../assets/diamonds.json";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+export const prerender = false;
+
+const { cut } = Astro.params;
+const data = diamonds.filter(d => d.cut === cut && d.carat && d.price);
+---
+
+<Layout>
+  <section class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Qualité de taille : {cut}</h1>
+
+    {data.length === 0 ? (
+      <p class="text-red-600">Aucune donnée disponible pour cette qualité.</p>
+    ) : (
+      <PlotFigure
+        options={{
+          marks: [
+            Plot.dot(data, {
+              x: "carat",
+              y: "price",
+              stroke: "cut",
+            }),
+          ],
+        }}
+      />
+    )}
+  </section>
+</Layout>
