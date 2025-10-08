@@ -1,0 +1,41 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import penguins from "../../assets/penguins.json";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+// Génération des routes statiques
+export async function getStaticPaths() {
+  const speciesList = [...new Set(penguins.map(p => p.species))];
+  return speciesList.map(species => ({ params: { species } }));
+}
+
+// Récupération des données pour l'espèce
+const { species } = Astro.params;
+const data = penguins.filter(p =>
+  p.species === species &&
+  p.culmen_length_mm &&
+  p.culmen_depth_mm
+);
+---
+
+<Layout>
+  <h1 class="text-2xl font-bold mb-4">Graphique statique pour {species}</h1>
+
+  {data.length === 0 ? (
+    <p class="text-red-600">Aucune donnée disponible pour cette espèce.</p>
+  ) : (
+    <PlotFigure
+      options={{
+        marks: [
+          Plot.dot(data, {
+            x: "culmen_length_mm",
+            y: "culmen_depth_mm",
+            stroke: "species",
+          }),
+        ],
+      }}
+    />
+  )}
+</Layout>
+
