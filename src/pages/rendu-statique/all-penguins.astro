@@ -1,0 +1,64 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import penguins from "../../assets/penguins.json";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+// Liste unique des espèces
+const speciesList = [...new Set(penguins.map(p => p.species))];
+---
+
+<Layout>
+  <section class="mb-12">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-4">Visualisation des manchots par espèce</h1>
+    <p class="text-gray-600 mb-6">Explore les caractéristiques morphologiques des différentes espèces à travers des graphiques interactifs.</p>
+
+    <!-- 🔗 Sommaire des espèces -->
+    <nav class="bg-gray-100 p-4 rounded-md shadow-sm mb-8">
+      <h2 class="text-lg font-semibold mb-2 text-gray-700">Accès rapide :</h2>
+      <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+        {speciesList.map(species => (
+          <li>
+            <a href={`#${species}`} class="block px-3 py-2 bg-white rounded-md shadow hover:bg-blue-50 text-blue-600 font-medium text-center transition">
+              {species}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </section>
+
+  <!-- 📊 Graphiques par espèce -->
+  <section class="space-y-16">
+    {speciesList.map(species => {
+      const data = penguins.filter(p =>
+        p.species === species &&
+        p.culmen_length_mm &&
+        p.culmen_depth_mm
+      );
+
+      return (
+        <div id={species} class="scroll-mt-24">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">{species}</h2>
+
+          {data.length === 0 ? (
+            <p class="text-red-600">Aucune donnée disponible pour cette espèce.</p>
+          ) : (
+            <PlotFigure
+              options={{
+                marks: [
+                  Plot.dot(data, {
+                    x: "culmen_length_mm",
+                    y: "culmen_depth_mm",
+                    stroke: "species",
+                  }),
+                ],
+              }}
+            />
+          )}
+        </div>
+      );
+    })}
+  </section>
+</Layout>
+
