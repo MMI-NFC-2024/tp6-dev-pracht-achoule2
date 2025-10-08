@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import penguins from "../../assets/penguins.json";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+const speciesList = [...new Set(penguins.map(p => p.species))];
+---
+
+<Layout>
+  <section class="mb-12">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-4">Rendu statique des manchots</h1>
+    <p class="text-gray-600 mb-6">Les pages sont pré-générées pour chaque espèce. Navigation rapide ci-dessous :</p>
+
+    <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      {speciesList.map(species => (
+        <li>
+          <a href={`/rendu-statique/${species}`} class="block px-4 py-2 bg-white rounded-md shadow hover:bg-blue-50 text-blue-600 font-medium text-center transition">
+            {species}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="text-xl font-semibold mb-4">Graphique global</h2>
+    <PlotFigure
+      options={{
+        marks: [
+          Plot.dot(penguins.filter(p => p.culmen_length_mm && p.culmen_depth_mm), {
+            x: "culmen_length_mm",
+            y: "culmen_depth_mm",
+            stroke: "species",
+          }),
+        ],
+      }}
+    />
+  </section>
+</Layout>
