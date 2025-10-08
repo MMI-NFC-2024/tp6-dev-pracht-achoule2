@@ -1,0 +1,49 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import diamonds from "../../assets/diamonds.json";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+const cutList = [...new Set(diamonds.map(d => d.cut))];
+---
+
+<Layout>
+  <section class="mb-12">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-4">Graphiques par qualité de taille</h1>
+    <p class="text-gray-600 mb-6">Visualisation des diamants regroupés par qualité de taille (<code>cut</code>).</p>
+
+    <nav class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-8">
+      {cutList.map(cut => (
+        <a href={`#${cut}`} class="block px-3 py-2 bg-white rounded-md shadow hover:bg-blue-50 text-blue-600 font-medium text-center transition">
+          {cut}
+        </a>
+      ))}
+    </nav>
+
+    <section class="space-y-16">
+      {cutList.map(cut => {
+        const data = diamonds.filter(d => d.cut === cut && d.carat && d.price);
+        return (
+          <div id={cut} class="scroll-mt-24">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">{cut}</h2>
+            {data.length === 0 ? (
+              <p class="text-red-600">Aucune donnée disponible pour cette qualité.</p>
+            ) : (
+              <PlotFigure
+                options={{
+                  marks: [
+                    Plot.dot(data, {
+                      x: "carat",
+                      y: "price",
+                      stroke: "cut",
+                    }),
+                  ],
+                }}
+              />
+            )}
+          </div>
+        );
+      })}
+    </section>
+  </section>
+</Layout>
