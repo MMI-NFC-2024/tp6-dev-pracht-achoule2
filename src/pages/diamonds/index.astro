@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import diamonds from "../../assets/diamonds.json";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+const cutList = [...new Set(diamonds.map(d => d.cut))];
+---
+
+<Layout>
+  <section class="mb-12">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-4">Visualisation des diamants 💎</h1>
+    <p class="text-gray-600 text-lg mb-6 max-w-3xl">
+      Explore les caractéristiques des diamants selon leur qualité de taille (<code>cut</code>) à travers des graphiques interactifs.
+    </p>
+
+    <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+      {cutList.map(cut => (
+        <li>
+          <a href={`/diamonds/${cut}`} class="block px-4 py-2 bg-white rounded-md shadow hover:bg-blue-50 text-blue-600 font-medium text-center transition">
+            {cut}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <h2 class="text-xl font-semibold mb-4">Graphique global</h2>
+    <PlotFigure
+      options={{
+        marks: [
+          Plot.dot(diamonds.filter(d => d.carat && d.price), {
+            x: "carat",
+            y: "price",
+            stroke: "cut",
+          }),
+        ],
+      }}
+    />
+  </section>
+</Layout>
